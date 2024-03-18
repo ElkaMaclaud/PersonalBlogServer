@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 module.exports = function saveDataToFile(newUser) {
 	try {
 		const filePath = path.join(process.cwd(), "data.json");
