@@ -3,6 +3,6 @@
   "builds": [{ "src": "index.js", "use": "@vercel/node" }],
   "routes": [{ "src": "/auth/*", "dest": "index.js" }],
   "env": {
-    "PORT": 5000
+    "PORT": "5000"
   }
 }
