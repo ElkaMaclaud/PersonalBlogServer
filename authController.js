@@ -73,8 +73,9 @@ class authController {
     try {
       const token = req.header("Authorization").split(" ")[1];
       // Проверяю токен в базе данных присутствует ли такой такой токен (жив ли ещё токен)
-      const users = await readFileUsers();
-      const user = await users.find((u) => u.token === token);
+      // const users = await readFileUsers();
+      // const user = await users.find((u) => u.token === token);
+      const user = await User.findOne({ token });
       if (!user) {
         return res
           .status(400)
