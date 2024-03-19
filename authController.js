@@ -106,7 +106,8 @@ class authController {
           .json({ success: false, message: `Ошибка загрузки файла` });
       }
       // Тут немного харкода (файл только один, поэтому не посылаю имя файла с клиента, а жестко в коде его определяю!)
-      const file = "assets/ResumeJohn.doc";
+      const file = path.resolve(__dirname, "assets/ResumeJohn.doc");
+
       const fileName = path.basename(file);
       await fs.promises.access(file, fs.constants.F_OK);
 
