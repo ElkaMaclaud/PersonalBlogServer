@@ -61,7 +61,8 @@ class authController {
             .json({ success: false, message: `Введен неверный пароль` });
         }
         const token = generateAccessToken(user._id);
-        User.findOneAndUpdate({...user, token})
+        const update = { token };
+        await User.findByIdAndUpdate(user._id, update);
         return res.json({ success: true, token });
       } catch (e) {
         console.log(e);
