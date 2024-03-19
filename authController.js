@@ -16,50 +16,66 @@ class authController {
       if (!errors.isEmpty()) {
         return res
           .status(400)
-          .json({ message: "Ошибка при регистрации", errors });
+          .json({ success: false, message: "Ошибка при регистрации", errors });
       }
-      const { email, password } = req.body;
-      const candidate = await User.findOne({ email });
+      let { email, password } = req.body;
+      // Проверка на пробелы не будет излишней в бэке
+      email = email.replace(/\s/g, "");
+      password = password.replace(/\s/g, "");
+      const users = await readFileUsers();
+      const candidate = users.find((u) => u.email === email);
+
       if (candidate) {
-        return res
-          .status(400)
-          .json({ message: "Пользователь с таким именем уже существует" });
+        return res.status(400).json({
+          success: false,
+          message: "Пользователь с таким именем уже существует",
+        });
       }
       const hashPassword = bcrypt.hashSync(password, 7);
-      const user = new User({ email, password: hashPassword });
-      await user.save();
-      // res.setHeader('Access-Control-Allow-Origin', '*');
-      // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-      // res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-      return res.json({ messsage: "Пользователь был успешно заригистрирован" });
+      const user = {
+        email,
+        password: hashPassword,
+        _id: Math.random().toString(30).substring(2, 15),
+      };
+      saveDataToFile(user);
+      return res.json({
+        success: true,
+        message: "Пользователь был успешно заригистрирован",
+      });
     } catch (e) {
       console.log(e);
-      res.status(400).json({ message: "Registration error" });
+      res.status(400).json({ success: false, message: "Ошибка регистрации" });
     }
   }
-
   async login(req, res) {
     try {
-      const { email, password } = req.body;
-      const user = await User.findOne({ email });
+      let { email, password } = req.body;
+      // Проверка на пробелы не будет излишней в бэке
+      email = email.replace(/\s/g, "");
+      password = password.replace(/\s/g, "");
+      const users = await readFileUsers();
+      const user = await users.find((u) => u.email === email);
       if (!user) {
-        return res
-          .status(400)
-          .json({ message: `Пользователь с таким ${email} не найден` });
+        return res.status(400).json({
+          success: false,
+          message: `Пользователь с таким ${email} не найден`,
+        });
       }
       const validatePassword = bcrypt.compareSync(password, user.password);
       if (!validatePassword) {
-        return res.status(400).json({ message: `Введен неверный пароль` });
+        return res
+          .status(400)
+          .json({ success: false, message: `Введен неверный пароль` });
       }
       const token = generateAccessToken(user._id);
-      return res.json({ token });
+      user.token = token;
+      updateUser(user);
+      return res.json({ success: true, token });
     } catch (e) {
       console.log(e);
-      res.status(400).json({ message: "Login error" });
+      res.status(400).json({ message: "Ошибка логина" });
     }
   }
-
   async getData(req, res) {
     try {
       const token = req.header("Authorization").split(" ")[1];
@@ -116,3 +132,53 @@ class authController {
 }
 
 module.exports = new authController();
+
+// async registration(req, res) {
+//     try {
+//       const errors = validationResult(req);
+//       if (!errors.isEmpty()) {
+//         return res
+//           .status(400)
+//           .json({ message: "Ошибка при регистрации", errors });
+//       }
+//       const { email, password } = req.body;
+//       const candidate = await User.findOne({ email });
+//       if (candidate) {
+//         return res
+//           .status(400)
+//           .json({ message: "Пользователь с таким именем уже существует" });
+//       }
+//       const hashPassword = bcrypt.hashSync(password, 7);
+//       const user = new User({ email, password: hashPassword });
+//       await user.save();
+//       // res.setHeader('Access-Control-Allow-Origin', '*');
+//       // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+//       // res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+//       return res.json({ messsage: "Пользователь был успешно заригистрирован" });
+//     } catch (e) {
+//       console.log(e);
+//       res.status(400).json({ message: "Registration error" });
+//     }
+//   }
+
+//   async login(req, res) {
+//     try {
+//       const { email, password } = req.body;
+//       const user = await User.findOne({ email });
+//       if (!user) {
+//         return res
+//           .status(400)
+//           .json({ message: `Пользователь с таким ${email} не найден` });
+//       }
+//       const validatePassword = bcrypt.compareSync(password, user.password);
+//       if (!validatePassword) {
+//         return res.status(400).json({ message: `Введен неверный пароль` });
+//       }
+//       const token = generateAccessToken(user._id);
+//       return res.json({ token });
+//     } catch (e) {
+//       console.log(e);
+//       res.status(400).json({ message: "Login error" });
+//     }
+//   }
