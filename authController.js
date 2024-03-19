@@ -1,3 +1,4 @@
+const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const readFileUsers = require("./utils/readFileUsers");
@@ -15,66 +16,50 @@ class authController {
       if (!errors.isEmpty()) {
         return res
           .status(400)
-          .json({ success: false, message: "Ошибка при регистрации", errors });
+          .json({ message: "Ошибка при регистрации", errors });
       }
-      let { email, password } = req.body;
-      // Проверка на пробелы не будет излишней в бэке
-      email = email.replace(/\s/g, "");
-      password = password.replace(/\s/g, "");
-      const users = await readFileUsers();
-      const candidate = users.find((u) => u.email === email);
-
+      const { email, password } = req.body;
+      const candidate = await User.findOne({ email });
       if (candidate) {
-        return res.status(400).json({
-          success: false,
-          message: "Пользователь с таким именем уже существует",
-        });
+        return res
+          .status(400)
+          .json({ message: "Пользователь с таким именем уже существует" });
       }
       const hashPassword = bcrypt.hashSync(password, 7);
-      const user = {
-        email,
-        password: hashPassword,
-        _id: Math.random().toString(30).substring(2, 15),
-      };
-      saveDataToFile(user);
-      return res.json({
-        success: true,
-        message: "Пользователь был успешно заригистрирован",
-      });
+      const user = new User({ email, password: hashPassword });
+      await user.save();
+      // res.setHeader('Access-Control-Allow-Origin', '*');
+      // res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+      // res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+      return res.json({ messsage: "Пользователь был успешно заригистрирован" });
     } catch (e) {
       console.log(e);
-      res.status(400).json({ success: false, message: "Ошибка регистрации" });
+      res.status(400).json({ message: "Registration error" });
     }
   }
+
   async login(req, res) {
     try {
-      let { email, password } = req.body;
-      // Проверка на пробелы не будет излишней в бэке
-      email = email.replace(/\s/g, "");
-      password = password.replace(/\s/g, "");
-      const users = await readFileUsers();
-      const user = await users.find((u) => u.email === email);
+      const { email, password } = req.body;
+      const user = await User.findOne({ email });
       if (!user) {
-        return res.status(400).json({
-          success: false,
-          message: `Пользователь с таким ${email} не найден`,
-        });
+        return res
+          .status(400)
+          .json({ message: `Пользователь с таким ${email} не найден` });
       }
       const validatePassword = bcrypt.compareSync(password, user.password);
       if (!validatePassword) {
-        return res
-          .status(400)
-          .json({ success: false, message: `Введен неверный пароль` });
+        return res.status(400).json({ message: `Введен неверный пароль` });
       }
       const token = generateAccessToken(user._id);
-      user.token = token;
-      updateUser(user);
-      return res.json({ success: true, token });
+      return res.json({ token });
     } catch (e) {
       console.log(e);
-      res.status(400).json({ message: "Ошибка логина" });
+      res.status(400).json({ message: "Login error" });
     }
   }
+
   async getData(req, res) {
     try {
       const token = req.header("Authorization").split(" ")[1];
