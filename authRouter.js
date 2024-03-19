@@ -1,9 +1,8 @@
-const Router = require("express");
 const controller = require("./authController");
 const { check } = require("express-validator");
 const authMiddleware = require("./middleware/authMiddleware");
-const { Router } = require("express"); // Используйте деструктуризацию для получения Router из express
-const router = Router();
+const express = require("express");
+const router = express.Router(); 
 
 router.post(
   "/registration",
@@ -21,6 +20,5 @@ router.post(
 router.post("/login", controller.login);
 router.get("/get_data", controller.getData);
 router.get("/download_resume", controller.getFile);
-
 
 module.exports = router;
