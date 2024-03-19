@@ -21,4 +21,3 @@ router.post("/login", controller.login);
 router.get("/get_data", controller.getData);
 router.get("/download_resume", controller.getFile);
 
-module.exports = router;
