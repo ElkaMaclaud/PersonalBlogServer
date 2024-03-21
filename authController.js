@@ -2,11 +2,7 @@ const User = require("./models/User");
 const Data = require("./models/Data");
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
-const readFileUsers = require("./utils/readFileUsers");
 const generateAccessToken = require("./utils/generateAccessToken");
-const readFileData = require("./utils/readFileData");
-const saveDataToFile = require("./utils/saveDataToFile");
-const updateUser = require("./utils/updateUser");
 const path = require("path");
 const fs = require("fs");
 
@@ -95,8 +91,9 @@ class authController {
     try {
       const token = req.header("Authorization").split(" ")[1];
       // Проверяю токен в базе данных присутствует ли такой такой токен (жив ли ещё токен)
-      const users = await readFileUsers();
-      const user = await users.find((u) => u.token === token);
+      // const users = await readFileUsers();
+      // const user = await users.find((u) => u.token === token);
+      const user = await User.findOne({ token });
       if (!user) {
         return res
           .status(400)
@@ -122,6 +119,7 @@ class authController {
         .json({ success: false, message: "Файл не найден" });
     }
   }
+
   // async setData(req, res) {
   //   try {
   //     const reqData = await readFileData();
