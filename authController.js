@@ -1,4 +1,5 @@
 const User = require("./models/User");
+const Data = require("./models/Data");
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const readFileUsers = require("./utils/readFileUsers");
@@ -8,7 +9,6 @@ const saveDataToFile = require("./utils/saveDataToFile");
 const updateUser = require("./utils/updateUser");
 const path = require("path");
 const fs = require("fs");
-//const Data = require("./models/Data");
 
 class authController {
   async registration(req, res) {
@@ -78,7 +78,8 @@ class authController {
           .status(400)
           .json({ success: false, message: `Ошибка авторизации` });
       }
-      const data = await readFileData();
+      //const data = await readFileData();
+      const data = await Data.find();
       res.json({
         success: true,
         data: data,
