@@ -69,7 +69,7 @@ class authController {
       // const users = await readFileUsers();
       // const user = await users.find((u) => u.token === token);
       const user = await User.findOne({ token });
-      if (!user) {
+      if (!user || !token) {
         return res
           .status(400)
           .json({ success: false, message: `Ошибка авторизации` });
