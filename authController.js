@@ -64,16 +64,6 @@ class authController {
   }
   async getData(req, res) {
     try {
-      const token = req.header("Authorization").split(" ")[1];
-      // Проверяю токен в базе данных присутствует ли такой такой токен (жив ли ещё токен)
-      // const users = await readFileUsers();
-      // const user = await users.find((u) => u.token === token);
-      const user = await User.findOne({ token });
-      if (!user || !token) {
-        return res
-          .status(400)
-          .json({ success: false, message: `Ошибка авторизации` });
-      }
       //const data = await readFileData();
       const data = await Data.find();
       res.json({
@@ -89,16 +79,6 @@ class authController {
   }
   async getFile(req, res) {
     try {
-      const token = req.header("Authorization").split(" ")[1];
-      // Проверяю токен в базе данных присутствует ли такой такой токен (жив ли ещё токен)
-      // const users = await readFileUsers();
-      // const user = await users.find((u) => u.token === token);
-      const user = await User.findOne({ token });
-      if (!user) {
-        return res
-          .status(400)
-          .json({ success: false, message: `Ошибка загрузки файла` });
-      }
       // Тут немного харкода (файл только один, поэтому не посылаю имя файла с клиента, а жестко в коде определяю!)
       const file = path.resolve(__dirname, "assets/ResumeJohn.doc");
 

@@ -17,9 +17,8 @@ router.post(
   ],
   controller.registration
 );
-router.post("/login", controller.login);
-router.get("/get_data", controller.getData);
-router.get("/download_resume", controller.getFile);
+router.get("/get_data", authMiddleware, controller.getData);
+router.get("/download_resume", authMiddleware, controller.getFile);
 // router.get("/setData", controller.setData);
 
 module.exports = router;
