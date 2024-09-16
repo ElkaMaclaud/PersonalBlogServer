@@ -102,14 +102,19 @@ class authController {
   async getPost(req, res) {
     try {
       const id = req.params.id
-      const post = await Data.findOne({
-        posts: { $elemMatch: { id } }
-      }, {
-        'posts.$': 1 
-      });
+      const post = await Data.aggregate([
+        { $unwind: "$posts" }, 
+        { $match: { "posts.id": id } }, 
+        { $replaceRoot: { newRoot: "$posts" } } 
+      ]); 
+      // await Data.findOne({
+      //   posts: { $elemMatch: { id } }
+      // }, {
+      //   'posts.$': 1 
+      // });
       res.json({
         success: true,
-        data: post,
+        data: post[0],
         message: "Данные успешно получены",
       });
     } catch (e) {
