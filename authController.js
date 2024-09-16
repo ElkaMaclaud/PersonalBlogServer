@@ -101,8 +101,12 @@ class authController {
   }
   async getPost(req, res) {
     try {
-      const id = req.param.id
-      const post = await Data.posts.findOne({id})
+      const id = req.params.id
+      const post = await Data.findOne({
+        posts: { $elemMatch: { id } }
+      }, {
+        'posts.$': 1 
+      });
       res.json({
         success: true,
         data: post,
