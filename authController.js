@@ -29,7 +29,7 @@ class authController {
 
       return res.json({
         success: true,
-        messsage: "Пользователь был успешно заригистрирован",
+        message: "Пользователь был успешно заригистрирован",
       });
     } catch (e) {
       console.log(e);
