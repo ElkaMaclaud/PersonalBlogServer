@@ -99,6 +99,21 @@ class authController {
         .json({ success: false, message: "Файл не найден" });
     }
   }
+  async getPost(req, res) {
+    try {
+      const id = req.param.id
+      const post = await Data.posts.findOne({id})
+      res.json({
+        success: true,
+        data: post,
+        message: "Данные успешно получены",
+      });
+    } catch (e) {
+      res
+        .status(400)
+        .json({ success: false, message: "Пост с таким id не найден" });
+    }
+  }
 
   // async setData(req, res) {
   //   try {
