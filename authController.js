@@ -3,6 +3,7 @@ const Data = require("./models/Data");
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const generateAccessToken = require("./utils/generateAccessToken");
+const readFileData = require("./utils/readFileData")
 const path = require("path");
 const fs = require("fs");
 
@@ -116,7 +117,7 @@ class authController {
     } catch (e) {
       res
         .status(400)
-        .json({ success: false, message: "Пост с таким id не найден" });
+        .json({ success: false, message: "Посты не найдены" });
     }
   }
   async getPost(req, res) {
@@ -160,7 +161,7 @@ class authController {
     } catch (e) {
       res
         .status(400)
-        .json({ success: false, message: "Пост с таким id не найден" });
+        .json({ success: false, message: "Работы не найдены" });
     }
   }
   async getWork(req, res) {
@@ -184,7 +185,24 @@ class authController {
     } catch (e) {
       res
         .status(400)
-        .json({ success: false, message: "Пост с таким id не найден" });
+        .json({ success: false, message: "Работа с таким id не найдена" });
+    }
+  }
+  async getContact(req, res) {
+    try {
+      const work = await Data.aggregate([
+        { $unwind: "$contact" }, 
+        { $replaceRoot: { newRoot: "$contact" } } 
+      ]); 
+      res.json({
+        success: true,
+        data: work[0],
+        message: "Данные успешно получены",
+      });
+    } catch (e) {
+      res
+        .status(400)
+        .json({ success: false, message: "Информация о контактах не найдена" });
     }
   }
 
@@ -193,10 +211,12 @@ class authController {
   //     const reqData = await readFileData();
   //     const postData = reqData.posts;
   //     const workData = reqData.works;
+  //     const contactData = reqData.contact
   //     const data = new Data({
   //       resume: reqData.resume,
   //       posts: postData,
   //       works: workData,
+  //       contact: contactData
   //     });
   //     await data.save();
   //     return res.json({

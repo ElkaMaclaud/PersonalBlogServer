@@ -24,6 +24,7 @@ router.get("/getPosts", authMiddleware, controller.getPosts);
 router.get("/getPost/:id", authMiddleware, controller.getPost);
 router.get("/getWorks", authMiddleware, controller.getWorks);
 router.get("/getWork/:id", authMiddleware, controller.getWork);
+router.get("/getContact", authMiddleware, controller.getContact);
 // router.get("/setData", controller.setData);
 
 module.exports = router;
