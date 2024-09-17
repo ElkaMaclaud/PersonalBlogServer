@@ -67,13 +67,13 @@ class authController {
   }
   async getData(req, res) {
     try {
-      //const data = await readFileData();
-      const resume = await Data.findOne({}, { resume: 1 });
+      // Переделать!!!!!!
+      const resume = await Data.findOne({}, { _id: 0, resume: 1 });
       const posts = await Post.find().sort({ date: -1 }).limit(2);
       const works = await Work.find({ date: { $lte: "2020" } })
         .sort({ date: -1 })
         .limit(3);
-      const allData = { resume, posts, works };
+      const allData = { resume: resume.resume, posts, works };
       res.json({
         success: true,
         data: allData,
