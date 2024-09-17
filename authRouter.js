@@ -21,6 +21,8 @@ router.post("/login", controller.login);
 router.get("/get_data", authMiddleware, controller.getData);
 router.get("/download_resume", authMiddleware, controller.getFile);
 router.get("/getPost/:id", authMiddleware, controller.getPost);
+router.get("/getWorks", authMiddleware, controller.getWorks);
+router.get("/getWork/:id", authMiddleware, controller.getWork);
 // router.get("/setData", controller.setData);
 
 module.exports = router;

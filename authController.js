@@ -123,6 +123,50 @@ class authController {
         .json({ success: false, message: "Пост с таким id не найден" });
     }
   }
+  async getWorks(req, res) {
+    try {
+      const id = req.params.id
+      const works = await Data.aggregate([
+        { $unwind: "$works" },
+        { $replaceRoot: { newRoot: "$works" } }
+      ]);
+      // const works = await Data.find({}, { works: 1 }).lean();
+      // const worksArray = works.map(item => item.works).flat(); 
+      res.json({
+        success: true,
+        data: works,
+        message: "Данные успешно получены",
+      });
+    } catch (e) {
+      res
+        .status(400)
+        .json({ success: false, message: "Пост с таким id не найден" });
+    }
+  }
+  async getWork(req, res) {
+    try {
+      const id = req.params.id
+      const work = await Data.aggregate([
+        { $unwind: "$works" }, 
+        { $match: { "works.id": id } }, 
+        { $replaceRoot: { newRoot: "$works" } } 
+      ]); 
+      // await Data.findOne({
+      //   works: { $elemMatch: { id } }
+      // }, {
+      //   'works.$': 1 
+      // });
+      res.json({
+        success: true,
+        data: work[0],
+        message: "Данные успешно получены",
+      });
+    } catch (e) {
+      res
+        .status(400)
+        .json({ success: false, message: "Пост с таким id не найден" });
+    }
+  }
 
   // async setData(req, res) {
   //   try {
