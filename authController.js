@@ -169,7 +169,7 @@ class authController {
       ]);
       res.json({
         success: true,
-        data: contact,
+        data: contact[0],
         message: "Данные успешно получены",
       });
     } catch (e) {
