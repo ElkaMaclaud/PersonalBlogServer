@@ -1,9 +1,11 @@
 const User = require("./models/User");
 const Data = require("./models/Data");
+const Post = require("./models/Post");
+const Work = require("./models/Work");
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const generateAccessToken = require("./utils/generateAccessToken");
-const readFileData = require("./utils/readFileData")
+const readFileData = require("./utils/readFileData");
 const path = require("path");
 const fs = require("fs");
 
@@ -66,10 +68,15 @@ class authController {
   async getData(req, res) {
     try {
       //const data = await readFileData();
-      const data = await Data.find();
+      const resume = await Data.findOne({}, { resume: 1 });
+      const posts = await Post.find().sort({ date: -1 }).limit(2);
+      const works = await Work.find({ date: { $lte: "2020" } })
+        .sort({ date: -1 })
+        .limit(3);
+      const allData = { resume, posts, works };
       res.json({
         success: true,
-        data: data,
+        data: allData,
         message: "Данные успешно получены",
       });
     } catch (e) {
@@ -102,40 +109,23 @@ class authController {
   }
   async getPosts(req, res) {
     try {
-      const id = req.params.id
-      const posts = await Data.aggregate([
-        { $unwind: "$posts" },
-        { $replaceRoot: { newRoot: "$posts" } }
-      ]);
-      // const posts = await Data.find({}, { posts: 1 }).lean();
-      // const postsArray = posts.map(item => item.posts).flat(); 
+      const posts = await Post.find();
       res.json({
         success: true,
         data: posts,
         message: "Данные успешно получены",
       });
     } catch (e) {
-      res
-        .status(400)
-        .json({ success: false, message: "Посты не найдены" });
+      res.status(400).json({ success: false, message: "Посты не найдены" });
     }
   }
   async getPost(req, res) {
     try {
-      const id = req.params.id
-      const post = await Data.aggregate([
-        { $unwind: "$posts" }, 
-        { $match: { "posts.id": id } }, 
-        { $replaceRoot: { newRoot: "$posts" } } 
-      ]); 
-      // await Data.findOne({
-      //   posts: { $elemMatch: { id } }
-      // }, {
-      //   'posts.$': 1 
-      // });
+      const id = req.params.id;
+      const post = await Post.findById(id);
       res.json({
         success: true,
-        data: post[0],
+        data: post,
         message: "Данные успешно получены",
       });
     } catch (e) {
@@ -146,40 +136,23 @@ class authController {
   }
   async getWorks(req, res) {
     try {
-      const id = req.params.id
-      const works = await Data.aggregate([
-        { $unwind: "$works" },
-        { $replaceRoot: { newRoot: "$works" } }
-      ]);
-      // const works = await Data.find({}, { works: 1 }).lean();
-      // const worksArray = works.map(item => item.works).flat(); 
+      const works = await Work.find();
       res.json({
         success: true,
         data: works,
         message: "Данные успешно получены",
       });
     } catch (e) {
-      res
-        .status(400)
-        .json({ success: false, message: "Работы не найдены" });
+      res.status(400).json({ success: false, message: "Работы не найдены" });
     }
   }
   async getWork(req, res) {
     try {
-      const id = req.params.id
-      const work = await Data.aggregate([
-        { $unwind: "$works" }, 
-        { $match: { "works.id": id } }, 
-        { $replaceRoot: { newRoot: "$works" } } 
-      ]); 
-      // await Data.findOne({
-      //   works: { $elemMatch: { id } }
-      // }, {
-      //   'works.$': 1 
-      // });
+      const id = req.params.id;
+      const work = await Work.findById(id);
       res.json({
         success: true,
-        data: work[0],
+        data: work,
         message: "Данные успешно получены",
       });
     } catch (e) {
@@ -190,13 +163,13 @@ class authController {
   }
   async getContact(req, res) {
     try {
-      const work = await Data.aggregate([
-        { $unwind: "$contact" }, 
-        { $replaceRoot: { newRoot: "$contact" } } 
-      ]); 
+      const contact = await Data.aggregate([
+        { $unwind: "$contact" },
+        { $replaceRoot: { newRoot: "$contact" } },
+      ]);
       res.json({
         success: true,
-        data: work[0],
+        data: contact,
         message: "Данные успешно получены",
       });
     } catch (e) {
@@ -211,19 +184,20 @@ class authController {
   //     const reqData = await readFileData();
   //     const postData = reqData.posts;
   //     const workData = reqData.works;
-  //     const contactData = reqData.contact
+  //     const contactData = reqData.contact;
   //     const data = new Data({
   //       resume: reqData.resume,
-  //       posts: postData,
-  //       works: workData,
-  //       contact: contactData
+  //       contact: reqData.contact,
   //     });
   //     await data.save();
+  //     // await Post.insertMany(postData);
+  //     // await Work.insertMany(workData);
   //     return res.json({
   //       success: true,
   //       message: "Данные успешно записались в MongoDB",
   //     });
   //   } catch (e) {
+  //     console.log(e);
   //     res.status(400).json({ success: false, message: "Ошибка записи данных" });
   //   }
   // }
