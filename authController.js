@@ -67,16 +67,47 @@ class authController {
   }
   async getData(req, res) {
     try {
-      // Переделать!!!!!!
-      const resume = await Data.findOne({}, { _id: 0, resume: 1 });
-      const posts = await Post.find().sort({ date: -1 }).limit(2);
-      const works = await Work.find({ date: { $lte: "2020" } })
-        .sort({ date: -1 })
-        .limit(3);
-      const allData = { resume: resume.resume, posts, works };
+      // Переделать!!!
+      // const resume = await Data.findOne({}, { _id: 0, resume: 1 });
+      // const posts = await Post.find().sort({ date: -1 }).limit(2);
+      // const works = await Work.find().sort({ date: -1 }).limit(3);
+      // const data = { resume: resume.resume, posts, works };
+
+      // Пределанная в aggregate
+      const allData = await Data.aggregate([
+        {
+          $lookup: {
+            from: 'posts', 
+            pipeline: [
+              { $sort: { date: -1 } },
+              { $limit: 2 },
+            ],
+            as: 'posts'
+          }
+        },
+        {
+          $lookup: {
+            from: 'works', 
+            pipeline: [
+              { $sort: { date: -1 } },
+              { $limit: 3 },
+            ],
+            as: 'works'
+          }
+        },
+        {
+          $project: {
+            _id: 0,
+            resume: 1,
+            posts: 1,
+            works: 1
+          }
+        }
+      ]);
+      const data = allData[0]
       res.json({
         success: true,
-        data: allData,
+        data: data,
         message: "Данные успешно получены",
       });
     } catch (e) {
@@ -109,7 +140,7 @@ class authController {
   }
   async getPosts(req, res) {
     try {
-      const posts = await Post.find();
+      const posts = await Post.find().sort({ date: -1 });
       res.json({
         success: true,
         data: posts,
@@ -136,7 +167,7 @@ class authController {
   }
   async getWorks(req, res) {
     try {
-      const works = await Work.find();
+      const works = await Work.find().sort({ date: -1 });
       res.json({
         success: true,
         data: works,
