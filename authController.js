@@ -2,6 +2,7 @@ const User = require("./models/User");
 const Data = require("./models/Data");
 const Post = require("./models/Post");
 const Work = require("./models/Work");
+const Image = require("./models/Image");
 const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const generateAccessToken = require("./utils/generateAccessToken");
@@ -129,6 +130,7 @@ class authController {
         `attachment; filename="${fileName}"`
       );
       res.setHeader("Content-Type", "application/octet-stream");
+      res.setHeader("Cache-Control", "public, max-age=31536000");
 
       const fileStream = fs.createReadStream(file);
       fileStream.pipe(res);
@@ -209,6 +211,16 @@ class authController {
         .json({ success: false, message: "Информация о контактах не найдена" });
     }
   }
+
+  // async saveImage() {
+  //   const file = path.resolve(__dirname, "assets/daniel-illeskas-2.webp")
+  //   const image = fs.readFileSync(file);
+  //   const newImage = new Image({
+  //     title: "Avatar",
+  //     content: image 
+  //   });
+  //   await newImage.save();
+  // };
 
   // async setData(req, res) {
   //   try {
