@@ -3,6 +3,7 @@
 /db.json
 .pnp
 .pnp.js
+.env
 
 
 /coverage
