@@ -1,8 +1,12 @@
 const { secret } = require("../config")
 const jwt = require("jsonwebtoken");
-module.exports = function generateAccessToken (id)  {
+const dotenv = require("dotenv")
+dotenv.config()
+
+module.exports = function generateAccessToken (id, email)  {
 	const payload = {
 		id,
+		email
 	}
-	return jwt.sign(payload, secret, { expiresIn: "24h" })
+	return jwt.sign(payload, process.env.SECRET, { expiresIn: "24h" })
 }
