@@ -18,13 +18,16 @@ router.post(
   controller.registration
 );
 router.post("/login", controller.login);
-router.get("/getData", authMiddleware, controller.getData);
-router.get("/downloadResume", authMiddleware, controller.getFile);
-router.get("/getPosts", authMiddleware, controller.getPosts);
-router.get("/getPost/:id", authMiddleware, controller.getPost);
-router.get("/getWorks", authMiddleware, controller.getWorks);
-router.get("/getWork/:id", authMiddleware, controller.getWork);
-router.get("/getContact", authMiddleware, controller.getContact);
+
+router.use(authMiddleware)
+
+router.get("/getData", controller.getData);
+router.get("/downloadResume", controller.getFile);
+router.get("/getPosts", controller.getPosts);
+router.get("/getPost/:id", controller.getPost);
+router.get("/getWorks", controller.getWorks);
+router.get("/getWork/:id", controller.getWork);
+router.get("/getContact", controller.getContact);
 // router.get("/saveImage", controller.saveImage);
 // router.get("/setData", controller.setData);
 
